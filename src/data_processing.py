@@ -7,8 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1Xpr6xb-ftDCb33aJmBM1hy14kw_uL14t
 """
 
-!pip install yfinance mftool
-
 import pandas as pd
 import numpy as np
 from data_loader import get_stock_data, enrich_stock_data, get_mutual_fund_data, get_all_mf_schemes
