@@ -11,3 +11,5 @@ openpyxl>=3.0.0
 jupyter>=1.0.0
 nbformat>=5.7.0
 scikit-learn>=1.1.0
+yfinance>=0.2.28
+mftool>=0.0.15
