@@ -73,13 +73,12 @@ st.markdown("""
 # ══════════════════════════════════════════════════════════════
 # DATA LOADING (cached)
 # ══════════════════════════════════════════════════════════════
-RAW_DIR = os.path.join(PROJECT_ROOT, 'data', 'raw')
-TICKERS = ['AAPL', 'MSFT', 'GOOG']
+TICKERS = ['RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS']
 
 @st.cache_data
 def load_data():
- stocks = load_and_clean_all_stocks(TICKERS, RAW_DIR)
- mf = clean_mutual_funds(load_raw_mutual_funds(RAW_DIR))
+ stocks = load_and_clean_all_stocks(TICKERS, '1y')
+ mf = clean_mutual_funds(load_raw_mutual_funds())
  stock_metrics = compute_stock_metrics(stocks)
  return stocks, mf, stock_metrics
 
@@ -96,11 +95,14 @@ selected_tickers = st.sidebar.multiselect(
  "Select Stocks", TICKERS, default=TICKERS
 )
 
+min_date = pd.Timestamp(stocks['date'].dropna().min()).date()
+max_date = pd.Timestamp(stocks['date'].dropna().max()).date()
+
 date_range = st.sidebar.date_input(
- "Date Range",
- value=[stocks['date'].min(), stocks['date'].max()],
- min_value=stocks['date'].min(),
- max_value=stocks['date'].max(),
+    "Date Range",
+    value=[min_date, max_date],
+    min_value=min_date,
+    max_value=max_date,
 )
 
 # Mutual fund filters
@@ -218,14 +220,18 @@ with tab1:
  with col4:
   st.subheader(" Risk vs Return")
   filtered_metrics = stock_metrics[stock_metrics['ticker'].isin(selected_tickers)]
+  filtered_metrics = filtered_metrics.copy()
+  filtered_metrics['bubble_size'] = filtered_metrics['cumulative_return_pct'].abs().clip(lower=1)
+
   fig = px.scatter(
    filtered_metrics, x='volatility', y='avg_daily_return',
-   text='ticker', size='cumulative_return_pct',
-   title='Risk vs Return — Stocks',
+   text='ticker', size='bubble_size',
+   title='Risk vs Return – Stocks',
    labels={'volatility': 'Volatility (σ %)', 'avg_daily_return': 'Avg Daily Return (%)'},
    template='plotly_dark',
    size_max=40,
   )
+  
   fig.update_traces(textposition='top center', textfont_size=14)
   fig.update_layout(height=400)
   st.plotly_chart(fig, use_container_width=True)
