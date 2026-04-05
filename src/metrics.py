@@ -114,7 +114,7 @@ def top_mutual_funds(
   mf_df
   .nlargest(n, by)
   [['scheme_name', 'category', 'returns_1yr', 'returns_3yr',
-   'returns_5yr', 'sd', 'risk_level', 'rating']]
+   'returns_5yr', 'sd', 'risk_level']]
   .reset_index(drop=True)
  )
 
