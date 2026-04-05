@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src'))
 from data_processing import load_and_clean_all_stocks, load_raw_mutual_funds, clean_mutual_funds
 from metrics import compute_stock_metrics, risk_return_comparison, compute_mf_metrics, top_mutual_funds, mf_risk_return_analysis
 from insight_engine import InsightEngine
+from llm_engine import LLMInsightEngine
 
 # ══════════════════════════════════════════════════════════════
 # PAGE CONFIG
@@ -286,7 +287,7 @@ with tab2:
    labels={'sd': 'Risk (Std Dev)', 'returns_1yr': '1-Year Return (%)'},
    template='plotly_dark', opacity=0.7,
   )
-  # Trend line
+
   valid = filtered_mf[['sd', 'returns_1yr']].dropna()
   if len(valid) > 2:
    z = np.polyfit(valid['sd'], valid['returns_1yr'], 1)
@@ -334,8 +335,21 @@ with tab3:
  st.markdown("*Powered by our rule-based LLM-inspired Insight Engine*")
  st.markdown("---")
 
+
+# AI toggle
+ st.sidebar.markdown("---")
+ use_llm = st.sidebar.toggle("🤖 Use Real AI Insights (Ollama)", value=False)
+
  # Generate insights
- engine = InsightEngine(stock_metrics, mf, stocks)
+ if use_llm:
+  engine = LLMInsightEngine(stock_metrics, mf, stocks)
+  st.markdown("*Powered by Ollama llama3*")
+  with st.spinner("🤖 Generating AI insights via Ollama... please wait (1-3 mins)"):
+    insights = engine.generate_dict()
+ else:
+  engine = InsightEngine(stock_metrics, mf, stocks)
+  st.markdown("*Powered by rule-based Insight Engine*")
+
  insights = engine.generate_dict()
 
  # Display in styled cards
