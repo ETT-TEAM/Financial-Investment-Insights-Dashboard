@@ -32,6 +32,7 @@ def get_all_mf_schemes() -> dict:
 
 def enrich_stock_data(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
+    df.columns = [col[0] if isinstance(col, tuple) else col for col in df.columns]
     df["daily_return"] = df["Close"].pct_change()
     df["volatility_30d"] = df["daily_return"].rolling(30).std() * (252 ** 0.5)
     df["SMA_20"] = df["Close"].rolling(20).mean()
